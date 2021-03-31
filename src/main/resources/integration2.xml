@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:int-http="http://www.springframework.org/schema/integration/http"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans 
+		https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/integration 
+		https://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/integration/http 
+		https://www.springframework.org/schema/integration/http/spring-integration-http.xsd">
+
+
+	<int-http:inbound-gateway
+		request-channel="requestChannel" reply-channel="outputChannel"
+		supported-methods="GET" path="/circuitBreaker/{name}"
+		payload-expression="#pathVariables.name" error-channel="errorChannel">
+		<int-http:request-mapping
+			consumes="application/json" produces="application/json" />
+	</int-http:inbound-gateway>
+
+	<int:service-activator ref="demoCircuitBreakerEndpoint"
+		method="getName" input-channel="requestChannel"
+		output-channel="invocationRequestChannel" />
+
+	<int-http:outbound-gateway
+		id="welcomeRestGateway" request-channel="invocationRequestChannel"
+		url="${geo.demospringintegration.url}" http-method="GET"
+		expected-response-type="com.geo.demospringintegrationcircuitbreaker.model.ws.HelloMsg"
+		charset="UTF-8" reply-timeout="5000"
+		reply-channel="invocationResponseChannel">
+		<int-http:uri-variable name="name"
+			expression="payload" />
+		<int-http:request-handler-advice-chain>
+			<bean
+				class="org.springframework.integration.handler.advice.RequestHandlerCircuitBreakerAdvice">
+				<property name="threshold" value="1" />
+				<property name="halfOpenAfter" value="60000" />
+			</bean>
+		</int-http:request-handler-advice-chain>
+	</int-http:outbound-gateway>
+	
+	<int:bridge input-channel="errorChannel" output-channel="invocationErrorChannel" />
+
+	<int:service-activator ref="demoCircuitBreakerEndpoint"
+		method="invocationErrorResponse" input-channel="invocationErrorChannel"
+		output-channel="outputChannel" />
+		
+	<int:service-activator ref="demoCircuitBreakerEndpoint"
+		method="buildResponse" input-channel="invocationResponseChannel"
+		output-channel="outputChannel" />
+
+	<int:channel id="requestChannel" />
+	<int:channel id="errorChannel" />
+	<int:channel id="invocationRequestChannel" />
+	<int:channel id="invocationErrorChannel" />
+	<int:channel id="invocationResponseChannel" />
+	<int:channel id="outputChannel" />
+</beans>
