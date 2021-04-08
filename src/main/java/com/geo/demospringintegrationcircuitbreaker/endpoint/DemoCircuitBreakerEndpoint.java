@@ -37,10 +37,11 @@ public class DemoCircuitBreakerEndpoint {
 		log.info("Exception: "+ex.getClass().getCanonicalName() + ", message: "+ex.getMessage());
 		log.info("3.invocationErrorResponse");
 		
-		if(ex instanceof CircuitBreakerOpenException || ExceptionUtil.getRootCause(ex) instanceof ConnectException) {
-			return circuitBreakerOpenHandlerException();
-		} 
-		throw ex;
+//		if(ex instanceof CircuitBreakerOpenException || ExceptionUtil.getRootCause(ex) instanceof ConnectException) {
+//			return circuitBreakerOpenHandlerException();
+//		} 
+//		throw ex;
+		return circuitBreakerOpenHandlerException();
 	}
 	
 	private Message<?> circuitBreakerOpenHandlerException(){

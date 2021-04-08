@@ -33,8 +33,10 @@
 		<int-http:uri-variable name="name"
 			expression="payload" />
 		<int-http:request-handler-advice-chain>
+		<!-- se reemplaza para obtener otro tipo de exception y poder controlarlo
+"org.springframework.integration.handler.advice.RequestHandlerCircuitBreakerAdvice" -->
 			<bean
-				class="org.springframework.integration.handler.advice.RequestHandlerCircuitBreakerAdvice">
+				class="com.geo.demospringintegrationcircuitbreaker.config.DemoCircuitBreakerAdvice">
 				<property name="threshold" value="1" />
 				<property name="halfOpenAfter" value="60000" />
 			</bean>
