@@ -1,11 +1,11 @@
 package com.geo.demospringintegrationcircuitbreaker.model.entity;
 
-public class ResponseMsg {
+public class ResponseDemo {
 	private String originalMsg;
 	private String msg;
 
 
-	public ResponseMsg() {
+	public ResponseDemo() {
 		
 	}
 

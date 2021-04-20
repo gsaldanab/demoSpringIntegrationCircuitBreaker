@@ -10,25 +10,26 @@ import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
 
-import com.geo.demospringintegrationcircuitbreaker.model.entity.ResponseMsg;
+import com.geo.demospringintegrationcircuitbreaker.model.entity.ResponseDemo;
 import com.geo.demospringintegrationcircuitbreaker.model.ws.HelloMsg;
+import com.geo.demospringintegrationcircuitbreaker.model.ws.ResponseMsg;
 import com.geo.demospringintegrationcircuitbreaker.util.ExceptionUtil;
 
 @Component
 public class DemoCircuitBreakerEndpoint {
 	private Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
-	public String getName(Message<String> msg) {
-		log.info("1.getName");
-		String name = msg.getPayload();
-		return name + ":1";
+	public String getOption(Message<String> msg) {
+		log.info("1.getOption");
+		String option = msg.getPayload();
+		return option;
 	}
 
-	public Message<?> buildResponse(HelloMsg msg) {
+	public Message<?> buildResponse(ResponseMsg msg) {
 		log.info("2.buildResponse");
-		ResponseMsg returnMsg = new ResponseMsg();
-		returnMsg.setOriginalMsg(msg.getMsg());
-		returnMsg.setMsg(msg.getMsg() + ", time is " + msg.getCurrentTime());
+		ResponseDemo returnMsg = new ResponseDemo();
+		returnMsg.setOriginalMsg(msg.getResponseBody().getMsg());
+		returnMsg.setMsg(String.format("code: %s, msg: %s", msg.getResponseStatus(), msg.getResponseBody().getMsg()));
 		return MessageBuilder.withPayload(returnMsg)
 				.setHeader("http_statusCode", HttpStatus.OK).build();
 	}
@@ -46,7 +47,7 @@ public class DemoCircuitBreakerEndpoint {
 	
 	private Message<?> circuitBreakerOpenHandlerException(){
 		log.info("4.circuitBreakerOpenHandlerException");
-		ResponseMsg returnMsg = new ResponseMsg();
+		ResponseDemo returnMsg = new ResponseDemo();
 		returnMsg.setOriginalMsg("mensaje por defecto");
 		returnMsg.setMsg("Ocurrio un error pero se muestra un mensaje por defecto y funciona bien");
 		return MessageBuilder.withPayload(returnMsg)

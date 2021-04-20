@@ -21,22 +21,21 @@
 	</int-http:inbound-gateway>
 
 	<int:service-activator ref="demoCircuitBreakerEndpoint"
-		method="getName" input-channel="requestChannel"
+		method="getOption" input-channel="requestChannel"
 		output-channel="invocationRequestChannel" />
 
 	<int-http:outbound-gateway
 		id="welcomeRestGateway" request-channel="invocationRequestChannel"
 		url="${geo.demospringintegration.url}" http-method="GET"
-		expected-response-type="com.geo.demospringintegrationcircuitbreaker.model.ws.HelloMsg"
+		expected-response-type="com.geo.demospringintegrationcircuitbreaker.model.ws.ResponseMsg"
 		charset="UTF-8" reply-timeout="5000"
 		reply-channel="invocationResponseChannel">
-		<int-http:uri-variable name="name"
-			expression="payload" />
+		<int-http:uri-variable name="option" expression="payload" />
 		<int-http:request-handler-advice-chain>
 		<!-- se reemplaza para obtener otro tipo de exception y poder controlarlo
 "org.springframework.integration.handler.advice.RequestHandlerCircuitBreakerAdvice" -->
 			<bean
-				class="com.geo.demospringintegrationcircuitbreaker.config.DemoCircuitBreakerAdvice">
+				class="com.geo.demospringintegrationcircuitbreaker.config.CustomCircuitBreakerAdvice">
 				<property name="threshold" value="1" />
 				<property name="halfOpenAfter" value="60000" />
 			</bean>
